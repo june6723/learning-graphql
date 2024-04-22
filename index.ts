@@ -1,6 +1,7 @@
 import { ApolloServer } from "apollo-server";
 import { readFileSync } from "fs";
 import type { Photo, PhotoInput, User } from "./@types";
+import { GraphQLScalarType } from "graphql";
 
 const typeDefs = readFileSync("./typeDefs.graphql", { encoding: "utf-8" });
 
@@ -18,6 +19,7 @@ let photos: any[] = [
     description: "The heart chute is one of my favorite chutes",
     category: "ACTION",
     githubUser: users[0].githubLogin,
+    created: "3-28-1977",
   },
   {
     id: "2",
@@ -25,6 +27,7 @@ let photos: any[] = [
     description: "Sunsets are my favorite",
     category: "SELFIE",
     githubUser: users[1].githubLogin,
+    created: "1-2-1985",
   },
   {
     id: "3",
@@ -32,6 +35,7 @@ let photos: any[] = [
     description: "25 laps on gunbarrel today",
     category: "LANDSCAPE",
     githubUser: users[2].githubLogin,
+    created: "2018-04-15",
   },
 ];
 
@@ -49,11 +53,15 @@ let tags = [
 const resolvers = {
   Query: {
     totalPhotos: () => photos.length,
-    allPhotos: () => photos,
+    allPhotos: (parent: any, args: any) => {
+      if (!args.after) return photos;
+      const after = new Date(args.after);
+      return photos.filter(({ created }) => new Date(created) > after);
+    },
   },
   Mutation: {
     postPhoto: (parent: any, args: { input: PhotoInput }) => {
-      const newPhoto = { ...args.input, id: `${++_id}` };
+      const newPhoto = { ...args.input, id: `${++_id}`, created: new Date() };
       photos.push(newPhoto);
       return newPhoto;
     },
@@ -82,6 +90,14 @@ const resolvers = {
         .map((t) => t.photoID)
         .map((photoID) => photos.find((p) => p.id === photoID)),
   },
+  DateTime: new GraphQLScalarType({
+    name: "DateTime",
+    description: "A valid date time value.",
+    parseValue: (value: any) => new Date(value),
+    /** 필드 반환 값으로 날짜 값을 받으면, 이를 ISO 형식 문자열 값으로 직렬화 */
+    serialize: (value: any) => new Date(value).toISOString(),
+    parseLiteral: (ast: any) => new Date(ast.value),
+  }),
 };
 
 const server = new ApolloServer({

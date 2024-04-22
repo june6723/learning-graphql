@@ -1,3 +1,5 @@
+scalar DateTime
+
 enum PhotoCategory {
   SELFIE
   PORTRAIT
@@ -19,6 +21,7 @@ type User {
 
 type Photo {
   id: ID!
+  created: DateTime!
   url: String!
   name: String!
   description: String
@@ -38,7 +41,7 @@ input PostPhotoInput {
 
 type Query {
   totalPhotos: Int!
-  allPhotos: [Photo!]!
+  allPhotos(after: DateTime): [Photo!]!
 }
 
 type Mutation {
