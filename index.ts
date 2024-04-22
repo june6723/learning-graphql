@@ -2,9 +2,18 @@ import { ApolloServer } from "apollo-server";
 import { readFileSync } from "fs";
 
 const typeDefs = readFileSync("./typeDefs.graphql", { encoding: "utf-8" });
+
+let photos: any[] = [];
 const resolvers = {
   Query: {
-    totalPhotos: () => 42,
+    totalPhotos: () => photos.length,
+  },
+  Mutation: {
+    // https://www.apollographql.com/docs/apollo-server/data/resolvers/#resolver-arguments
+    postPhoto: (parent: any, args: any) => {
+      photos.push(args);
+      return true;
+    },
   },
 };
 
