@@ -6,12 +6,24 @@ enum PhotoCategory {
   GRAPHIC
 }
 
+type User {
+  githubLogin: ID!
+  name: String
+  avatar: String
+  # 일대다 관계
+  # directed graph
+  postedPhotos: [Photo!]!
+}
+
 type Photo {
   id: ID!
   url: String!
   name: String!
   description: String
   category: PhotoCategory!
+  # 일대일 연결
+  # undirected graph
+  postedBy: User!
 }
 
 input PostPhotoInput {

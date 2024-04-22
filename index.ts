@@ -1,11 +1,39 @@
 import { ApolloServer } from "apollo-server";
 import { readFileSync } from "fs";
-import type { Photo, PhotoInput } from "./@types";
+import type { Photo, PhotoInput, User } from "./@types";
 
 const typeDefs = readFileSync("./typeDefs.graphql", { encoding: "utf-8" });
 
 let _id = 0;
-let photos: Photo[] = [];
+
+let users: User[] = [
+  { githubLogin: "mHattrup", name: "Mike Hattrup" },
+  { githubLogin: "gPlake", name: "Glen Plake" },
+  { githubLogin: "sSchmidt", name: "Scot Schmidt" },
+];
+let photos: any[] = [
+  {
+    id: "1",
+    name: "Dropping the Heart Chute",
+    description: "The heart chute is one of my favorite chutes",
+    category: "ACTION",
+    githubUser: users[0].githubLogin,
+  },
+  {
+    id: "2",
+    name: "Enjoying the sunshine",
+    description: "Sunsets are my favorite",
+    category: "SELFIE",
+    githubUser: users[1].githubLogin,
+  },
+  {
+    id: "3",
+    name: "Gunbarrel 25",
+    description: "25 laps on gunbarrel today",
+    category: "LANDSCAPE",
+    githubUser: users[2].githubLogin,
+  },
+];
 
 const resolvers = {
   Query: {
@@ -13,9 +41,8 @@ const resolvers = {
     allPhotos: () => photos,
   },
   Mutation: {
-    // https://www.apollographql.com/docs/apollo-server/data/resolvers/#resolver-arguments
     postPhoto: (parent: any, args: { input: PhotoInput }) => {
-      const newPhoto = { ...args.input, id: ++_id };
+      const newPhoto = { ...args.input, id: `${++_id}` };
       photos.push(newPhoto);
       return newPhoto;
     },
@@ -27,6 +54,12 @@ const resolvers = {
   // GraphQL 스키마의 각 필드는 모두 짝이 되는 리졸버가 있다.
   Photo: {
     url: (parent: any) => `http://yoursite.com/img/${parent.id}.jpg`,
+    postedBy: (parent: any) =>
+      users.find((u) => u.githubLogin === parent.githubUser),
+  },
+  User: {
+    postedPhotos: (parent: any) =>
+      photos.filter((p) => p.githubUser === parent.githubLogin),
   },
 };
 
