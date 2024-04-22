@@ -1,6 +1,6 @@
 import { ApolloServer } from "apollo-server";
 import { readFileSync } from "fs";
-import type { Photo } from "./@types";
+import type { Photo, PhotoInput } from "./@types";
 
 const typeDefs = readFileSync("./typeDefs.graphql", { encoding: "utf-8" });
 
@@ -14,8 +14,8 @@ const resolvers = {
   },
   Mutation: {
     // https://www.apollographql.com/docs/apollo-server/data/resolvers/#resolver-arguments
-    postPhoto: (parent: any, args: any) => {
-      const newPhoto: Photo = { ...args, id: ++_id };
+    postPhoto: (parent: any, args: { input: PhotoInput }) => {
+      const newPhoto = { ...args.input, id: ++_id };
       photos.push(newPhoto);
       return newPhoto;
     },

@@ -1,7 +1,14 @@
 type Photo = {
   id: number;
-  url: string;
+  url?: string;
   name: string;
-  description: string;
+  description?: string | null;
 };
-export type { Photo };
+type PhotoCategory = "SELFIE" | "PORTRAIT" | "ACTION" | "LANDSCAPE" | "GRAPHIC";
+type PhotoInput = {
+  name: string;
+  category: PhotoCategory;
+  description?: string | null;
+};
+
+export type { Photo, PhotoCategory, PhotoInput };
