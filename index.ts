@@ -35,6 +35,17 @@ let photos: any[] = [
   },
 ];
 
+/**
+ * tag 배열을 코드에서 사용했지만 tag라는 Graphql 타입을 만들지는 않았다.
+ * GraphQL은 데이터 모델이 스키마 타입과 반드시 매칭하도록 강제하지 않는다.
+ */
+let tags = [
+  { photoID: "1", userID: "gPlake" },
+  { photoID: "2", userID: "sSchmidt" },
+  { photoID: "2", userID: "mHattrup" },
+  { photoID: "2", userID: "gPlake" },
+];
+
 const resolvers = {
   Query: {
     totalPhotos: () => photos.length,
@@ -56,10 +67,20 @@ const resolvers = {
     url: (parent: any) => `http://yoursite.com/img/${parent.id}.jpg`,
     postedBy: (parent: any) =>
       users.find((u) => u.githubLogin === parent.githubUser),
+    taggedUsers: (parent: any) =>
+      tags
+        .filter((t) => t.photoID === parent.id)
+        .map((t) => t.userID)
+        .map((userID) => users.find((u) => u.githubLogin === userID)),
   },
   User: {
     postedPhotos: (parent: any) =>
       photos.filter((p) => p.githubUser === parent.githubLogin),
+    inPhotos: (parent: any) =>
+      tags
+        .filter((t) => t.userID === parent.id)
+        .map((t) => t.photoID)
+        .map((photoID) => photos.find((p) => p.id === photoID)),
   },
 };
 

@@ -13,6 +13,8 @@ type User {
   # 일대다 관계
   # directed graph
   postedPhotos: [Photo!]!
+  # 다대다 관계
+  inPhotos: [Photo!]!
 }
 
 type Photo {
@@ -24,6 +26,8 @@ type Photo {
   # 일대일 연결
   # undirected graph
   postedBy: User!
+  # 다대다 관계
+  taggedUsers: [User!]!
 }
 
 input PostPhotoInput {
